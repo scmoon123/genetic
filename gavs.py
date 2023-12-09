@@ -2,7 +2,7 @@ import random
 from typing import Callable, List, Union
 
 import numpy as np
-from numpy import ndarray
+from numpy import indices, ndarray
 
 from utils import _CalculateFit, _CrossOver, _Mutation, _ParentSelection
 
@@ -149,12 +149,21 @@ class GA(
         """
         Finds if any chromosome is all zeros, and replaces the zero rows with random 0,1s
         """
-        while np.any((population == 0).all(axis=1)):
-            # Find the indices of rows with all zeros
-            zero_rows_indices = np.where((population == 0).all(axis=1))[0]
+        # NOTE: replaced loop with vectorized implementation
+        # while np.any((population == 0).all(axis=1)):
+        #     # Find the indices of rows with all zeros
+        #     zero_rows_indices = np.where((population == 0).all(axis=1))[0]
+        #     # Replace each zero row with a randomly generated 0,1 row
+        #     for row_index in zero_rows_indices:
+        #         population[row_index] = np.random.randint(0, 2, self.C)
 
-            # Replace each zero row with a randomly generated 0,1 row
-            for row_index in zero_rows_indices:
-                population[row_index] = np.random.randint(0, 2, self.C)
-
+        _idx = population.mean(axis=1) == 0
+        new_chromo = np.zeros_like(population[_idx])
+        new_chromo[:, self.C // 2 :] = 1
+        new_chromo = np.take_along_axis(  # shuffle new_chromo along axis=1
+            new_chromo,
+            indices=np.random.rand(*new_chromo.shape).argsort(axis=1),  # type: ignore
+            axis=1,
+        )
+        population[_idx] = new_chromo
         return population
