@@ -14,7 +14,8 @@ class _Mutation:
         # Purpose of this class is to supply relevant functionalities to the GA class.
         pass
 
-    def random_mutate(self, current_population: ndarray):
+    @staticmethod
+    def random_mutate(current_population: ndarray, mutate_prob: float):
         """
         Randomly switches genes (bit switch) in generation with probability mutate_prob
 
@@ -26,9 +27,7 @@ class _Mutation:
         rng = np.random.default_rng()
 
         population_new = current_population.copy()
-        mutation_locations = rng.binomial(
-            1, self.mutate_prob, size=current_population.shape
-        )
+        mutation_locations = rng.binomial(1, mutate_prob, size=current_population.shape)
         mask = mutation_locations == 1
         population_new[mask] = 1 - population_new[mask]  # flip bits using the mask
         return population_new

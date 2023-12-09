@@ -63,7 +63,7 @@ def test_selection_process():
     mod = sm.OLS
 
     ga = GA(X, y, mod, max_iter=10, pop_size=20)
-    best_solution, best_fitness = ga.select([ga.random_mutate])
+    best_solution, best_fitness = ga.select([GA.random_mutate])
 
     assert isinstance(best_solution, np.ndarray)
     assert isinstance(best_fitness, (float, int))
@@ -79,7 +79,7 @@ def test_mutation():
 
     ga = GA(X, y, mod, max_iter=100, pop_size=20, mutate_prob=0.1)
     initial_pop = ga.initialize_pop()
-    mutated_pop = ga.random_mutate(initial_pop)
+    mutated_pop = ga.random_mutate(initial_pop, ga.mutate_prob)
 
     assert mutated_pop.shape == initial_pop.shape
 

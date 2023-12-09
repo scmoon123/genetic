@@ -13,7 +13,8 @@ class _CrossOver:
         # Purpose of this class is to supply relevant functionalities to the GA class.
         pass
 
-    def split_and_glue_population(self, current_population):
+    @staticmethod
+    def split_and_glue_population(current_population):
         """
         Performs split-and-glue crossover to current population (assuming 1&2 is paired, 3&4, etc.)
 
@@ -23,13 +24,17 @@ class _CrossOver:
         count = 0
         new_population = np.zeros(current_population.shape).astype(int)
         for pair in np.arange(int(current_population.shape[0] / 2)):
-            new_population[count], new_population[count + 1] = self._split_and_glue(
+            (
+                new_population[count],
+                new_population[count + 1],
+            ) = _CrossOver._split_and_glue(
                 current_population[count], current_population[count + 1]
             )
             count += 2
         return new_population
 
-    def _split_and_glue(self, parent1, parent2):
+    @staticmethod
+    def _split_and_glue(parent1, parent2):
         """
         Crossover two parents to create two children.
         The method used here is a simple split and glue approach.
@@ -43,7 +48,8 @@ class _CrossOver:
         child2 = np.concatenate((parent2[0:cut_idx], parent1[cut_idx:]))
         return child1, child2
 
-    def random_allel_selection_population(self, current_population):
+    @staticmethod
+    def random_allel_selection_population(current_population):
         """
         Performs random allel selection crossover to current population (assuming 1&2 is paired, 3&4, etc.)
 
@@ -56,13 +62,14 @@ class _CrossOver:
             (
                 new_population[count],
                 new_population[count + 1],
-            ) = self._random_allel_selection(
+            ) = _CrossOver._random_allel_selection(
                 current_population[count], current_population[count + 1]
             )
             count += 2
         return new_population
 
-    def _random_allel_selection(self, parent1, parent2):
+    @staticmethod
+    def _random_allel_selection(parent1, parent2):
         """
         Crossover two parents to create two children.
         The method randomly selects an allel from one of the parents per loci.

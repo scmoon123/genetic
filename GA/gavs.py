@@ -1,5 +1,6 @@
 import random
-from typing import Callable, List, Union
+from functools import partial
+from typing import Callable, List
 
 import numpy as np
 from numpy import ndarray
@@ -7,21 +8,6 @@ from numpy import ndarray
 from .utils import _CalculateFit, _CrossOver, _Mutation, _ParentSelection
 
 __all__ = ["GA"]
-
-# TODO: const
-supported_int_types = Union[
-    int,
-    np.int8,
-    np.int16,
-    np.int32,
-    np.int64,
-    np.uint,
-    np.uint8,
-    np.uint16,
-    np.uint32,
-    np.uint64,
-]
-supported_float_types = Union[float, np.float16, np.float32, np.float64]
 
 
 class GA(
@@ -47,13 +33,13 @@ class GA(
         parameters:
             X: input feature
             y: label
-            mod: regression method
-            max_iter: max iteration for ..
-            pop_size: ...
-            starting_population: GA start popluation
-            mutate_prob: GA mutate probability
-            save_sols: ...
-            random_seed: random_seed
+            mod: objective function
+            max_iter: GA max iteration
+            pop_size: GA population size
+            starting_population: if set use it as initial GA population
+            mutate_prob: GA mutation probability
+            save_sols: ... TODO
+            random_seed: random seed value
         """
         self.random_seed: int = random_seed
         if random_seed:
@@ -116,21 +102,26 @@ class GA(
         """
         Runs variable selection based on a user-defined genetic operator sequence: operator_list
         """
+        # set default mutation methods
         operator_list = [
-            self.random_mutate,
-            self.split_and_glue_population,
-            self.random_allel_selection_population,
-        ] or operator_list  # TODO: set default if None
+            GA.split_and_glue_population,
+            GA.random_mutate,
+        ] or operator_list
+        for i, f in enumerate(operator_list):
+            if f.__name__ == "random_mutate":
+                operator_list[i] = partial(f, mutate_prob=self.mutate_prob)
 
+        """Prepare GA"""
         starting_pop: ndarray = self.initialize_pop()
         current_pop: ndarray = starting_pop.copy()
 
-        for _ in range(self.max_iter):
+        for i in range(self.max_iter):
             """Calculates fitness and pairs parents"""
             # chrom_ranked: ordered bool matrix(current_pop) from the fittest to unfittest
             chrom_ranked, fitness_val = self.calc_fit_sort_population(current_pop)
             parents = self.select_from_fitness_rank(chrom_ranked)
             current_pop = parents  # update current_pop's chromosoe
+            print(f"[iteration {i+1}] score: {fitness_val[0]:3.4f} | {chrom_ranked[0]}")
 
             """Runs genetic operator sequence"""
             for method in operator_list:
