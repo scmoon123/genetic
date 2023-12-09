@@ -4,14 +4,14 @@ from typing import Callable, Union
 import numpy as np
 from numpy import ndarray
 
-from utils import CalculateFit, CrossOver, Mutation, ParentSelection
+from utils import _CalculateFit, _CrossOver, _Mutation, _ParentSelection
 
 
 class GA(
-    CalculateFit,
-    ParentSelection,
-    CrossOver,
-    Mutation,
+    _CalculateFit,
+    _ParentSelection,
+    _CrossOver,
+    _Mutation,
 ):
     supported_int_types = Union[
         int,
@@ -35,7 +35,7 @@ class GA(
         max_iter: int,
         pop_size: int = None,  # type: ignore
         # fitness_func = "AIC",
-        starting_population: int = None,  # type: ignore
+        starting_population: ndarray = None,  # type: ignore
         mutate_prob: float = 0.01,
         save_sols: bool = False,
         random_seed: int = None,  # type: ignore
