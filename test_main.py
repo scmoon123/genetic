@@ -1,11 +1,21 @@
+import os
+import random
 from typing import Tuple
 
 import numpy as np
-# import pytest
+import pytest
 import statsmodels.api as sm
 from numpy import ndarray
 
 from gavs import GA
+
+
+@pytest.fixture(autouse=True, scope="module", params=[_ for _ in range(41, 71)])
+def seed_everything(request):
+    seed = request.param
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    random.seed(seed)
+    np.random.seed(seed)
 
 
 def test_initialization():
@@ -99,8 +109,3 @@ def test_ga_feature_selection():
         > best_solution[num_features // 2 :].sum()
     )
     assert did_ga_favor_first_half, "GA did not favor the first half of the features"
-
-
-# TODO: remove later
-if __name__ == "__main__":
-    test_ga_feature_selection()
