@@ -11,7 +11,7 @@ import pytest
 import statsmodels.api as sm
 from numpy import ndarray
 
-from gavs import GA
+from GA import GA
 
 
 @pytest.fixture(autouse=True, scope="module", params=[_ for _ in range(41, 71)])

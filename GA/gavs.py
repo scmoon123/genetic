@@ -4,7 +4,7 @@ from typing import Callable, List, Union
 import numpy as np
 from numpy import ndarray
 
-from utils import _CalculateFit, _CrossOver, _Mutation, _ParentSelection
+from .utils import _CalculateFit, _CrossOver, _Mutation, _ParentSelection
 
 __all__ = ["GA"]
 
