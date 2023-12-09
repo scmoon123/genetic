@@ -1,6 +1,9 @@
+from typing import Tuple
+
 import numpy as np
-import pytest
+# import pytest
 import statsmodels.api as sm
+from numpy import ndarray
 
 from gavs import GA
 
@@ -64,18 +67,21 @@ def test_mutation():
     assert mutated_pop.shape == initial_pop.shape
 
 
-def simulate_dataset(num_samples=100, num_features=100):
-    """
-    Simulate a dataset where the first half of the variables are relevant and the second half are not.
-    """
-    X = np.random.rand(num_samples, num_features)
-    y = np.sum(
-        X[:, : num_features // 2], axis=1
-    )  # Target depends on the first half of the features
-    return X, y
-
-
 def test_ga_feature_selection():
+    def simulate_dataset(num_samples=100, num_features=100) -> Tuple[ndarray, ndarray]:
+        """
+        Simulate a dataset where the first half of the variables are relevant and the second half are not.
+        returns:
+            X: (num_samples, num_features) fp64 matrix
+            y: (num_samples,) fp64 vector
+        """
+        X = np.random.rand(num_samples, num_features)
+
+        # Target depends on the first half of the features
+        y = np.sum(X[:, : num_features // 2], axis=1)
+
+        return X, y
+
     num_samples, num_features = 100, 100
     X, y = simulate_dataset(num_samples, num_features)
 
@@ -93,3 +99,8 @@ def test_ga_feature_selection():
         > best_solution[num_features // 2 :].sum()
     )
     assert did_ga_favor_first_half, "GA did not favor the first half of the features"
+
+
+# TODO: remove later
+if __name__ == "__main__":
+    test_ga_feature_selection()

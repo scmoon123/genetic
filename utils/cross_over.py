@@ -3,11 +3,14 @@ Module to perform crossover (genetic operator) to the current generation
 """
 
 import numpy as np
-import pandas as pd
+
+__all__ = ["_CrossOver"]
 
 
-class CrossOver:
-    def __init__():
+class _CrossOver:
+    def __init__(self):
+        # This class should not be initialized standalone.
+        # Purpose of this class is to supply relevant functionalities to the GA class.
         pass
 
     def split_and_glue_population(self, current_population):

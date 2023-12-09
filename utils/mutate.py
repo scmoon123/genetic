@@ -4,11 +4,16 @@ Mutation module with genetic operator "mutation"
 
 import numpy as np
 
+__all__ = ["_Mutation"]
 
-class Mutation:
-    def __init__():
+
+class _Mutation:
+    def __init__(self):
+        # This class should not be initialized standalone.
+        # Purpose of this class is to supply relevant functionalities to the GA class.
         pass
 
+    @staticmethod
     def random_mutate(self, current_population):
         """
         Randomly switches genes (bit switch) in generation with probability mutate_prob
