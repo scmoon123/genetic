@@ -1,5 +1,6 @@
-from gavs import *
 import statsmodels.api as sm
+
+from gavs import *
 
 spector_data = sm.datasets.spector.load()
 
