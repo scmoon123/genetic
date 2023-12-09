@@ -1,3 +1,7 @@
+"""
+To execute the TEST
+pytest test_main.py -v
+"""
 import os
 import random
 from typing import Tuple
@@ -12,6 +16,9 @@ from gavs import GA
 
 @pytest.fixture(autouse=True, scope="module", params=[_ for _ in range(41, 71)])
 def seed_everything(request):
+    """
+    test on different random seeds
+    """
     seed = request.param
     os.environ["PYTHONHASHSEED"] = str(seed)
     random.seed(seed)
