@@ -3,6 +3,7 @@ Mutation module with genetic operator "mutation"
 """
 
 import numpy as np
+from numpy import ndarray
 
 __all__ = ["_Mutation"]
 
@@ -13,16 +14,14 @@ class _Mutation:
         # Purpose of this class is to supply relevant functionalities to the GA class.
         pass
 
-    @staticmethod
-    def random_mutate(self, current_population):
+    def random_mutate(self, current_population: ndarray):
         """
         Randomly switches genes (bit switch) in generation with probability mutate_prob
 
-        Inputs: Generation of organisms - Size: (pop_size x C (number of predictors))
+        Inputs:
+            current_population: Generation of organisms (population_size, C)
         Outputs: Generation of mutated organisms of same size
-
         """
-
         # initialize random generator
         rng = np.random.default_rng()
 

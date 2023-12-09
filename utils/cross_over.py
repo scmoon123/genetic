@@ -23,13 +23,13 @@ class _CrossOver:
         count = 0
         new_population = np.zeros(current_population.shape).astype(int)
         for pair in np.arange(int(current_population.shape[0] / 2)):
-            new_population[count], new_population[count + 1] = self.split_and_glue(
+            new_population[count], new_population[count + 1] = self._split_and_glue(
                 current_population[count], current_population[count + 1]
             )
             count += 2
         return new_population
 
-    def split_and_glue(self, parent1, parent2):
+    def _split_and_glue(self, parent1, parent2):
         """
         Crossover two parents to create two children.
         The method used here is a simple split and glue approach.
@@ -56,13 +56,13 @@ class _CrossOver:
             (
                 new_population[count],
                 new_population[count + 1],
-            ) = self.random_allel_selection(
+            ) = self._random_allel_selection(
                 current_population[count], current_population[count + 1]
             )
             count += 2
         return new_population
 
-    def random_allel_selection(self, parent1, parent2):
+    def _random_allel_selection(self, parent1, parent2):
         """
         Crossover two parents to create two children.
         The method randomly selects an allel from one of the parents per loci.

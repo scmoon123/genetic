@@ -1,10 +1,25 @@
 import random
-from typing import Callable, Union
+from typing import Callable, List, Union
 
 import numpy as np
 from numpy import ndarray
 
 from utils import _CalculateFit, _CrossOver, _Mutation, _ParentSelection
+
+# TODO: const
+supported_int_types = Union[
+    int,
+    np.int8,
+    np.int16,
+    np.int32,
+    np.int64,
+    np.uint,
+    np.uint8,
+    np.uint16,
+    np.uint32,
+    np.uint64,
+]
+supported_float_types = Union[float, np.float16, np.float32, np.float64]
 
 
 class GA(
@@ -13,20 +28,6 @@ class GA(
     _CrossOver,
     _Mutation,
 ):
-    supported_int_types = Union[
-        int,
-        np.int8,
-        np.int16,
-        np.int32,
-        np.int64,
-        np.uint,
-        np.uint8,
-        np.uint16,
-        np.uint32,
-        np.uint64,
-    ]
-    supported_float_types = Union[float, np.float16, np.float32, np.float64]
-
     def __init__(
         self,
         X: ndarray,
@@ -109,13 +110,16 @@ class GA(
 
         return self.starting_population
 
-    def select(self, operator_list: List[Callable] = [GA.random_mutate]):
+    def select(self, operator_list: List[Callable] = None):  # type: ignore
         """
         Runs variable selection based on a user-defined genetic operator sequence: operator_list
         """
-        import pdb
+        operator_list = [
+            self.random_mutate,
+            self.split_and_glue_population,
+            self.random_allel_selection_population,
+        ] or operator_list  # TODO: set default if None
 
-        pdb.set_trace()
         starting_pop: ndarray = self.initialize_pop()
         current_pop: ndarray = starting_pop.copy()
 
@@ -130,6 +134,7 @@ class GA(
             for method in operator_list:
                 new_population = method(current_pop)
                 current_pop = new_population
+
             # Check if any chromosome of zeros and replace the row
             current_pop = self.replace_zero_chromosome(current_pop)
 
