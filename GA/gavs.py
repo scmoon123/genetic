@@ -46,7 +46,6 @@ class GA(
             np.random.seed(self.random_seed)
             random.seed(self.random_seed)
 
-        # C: feature_size (TODO: rmv comments)
         self.C: int = X.shape[1]  # CHECK: this is assuming intercept column
 
         if pop_size is None:
@@ -138,7 +137,7 @@ class GA(
 
         return (self.final_pop_sorted[0], self.final_fitness_val[0])
 
-    def replace_zero_chromosome(self, population: ndarray):  # TODO: vectorize
+    def replace_zero_chromosome(self, population: ndarray):
         """
         Finds if any chromosome is all zeros, and replaces the zero rows with random 0,1s
         """
