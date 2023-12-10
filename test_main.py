@@ -120,13 +120,15 @@ def test_ga_feature_selection():
 
 def test_simple_ga_problem():
     """
-    goal: maximize sum of chromosome
+    goal: maximize sum of chromosome (reduce zeros in chromosome)
     e.g.
-    [0, 0, 0, 0, 1] => fitness_score: (1 / (1+1e-9)).mean()
-    [1, 1, 1, 1, 1] => fitness_score: (5 / (5+1e-9)).mean()
+    [0, 0, 0, 0, 1] => fitness_score: 4
+    [0, 1, 1, 0, 0] => fitness_score: 3
+    [0, 1, 1, 0, 1] => fitness_score: 2
+    [1, 1, 1, 1, 1] => fitness_score: 0
     """
-
-    X = np.random.randint(0, 2, size=(120, 20))
+    feature_size = 20
+    X = np.random.randint(0, 2, size=(120, feature_size))
     y = X.sum(axis=1)
 
     class MyMod:
@@ -137,23 +139,20 @@ def test_simple_ga_problem():
             """
             e.g.
             given
-            sample dataset X: (sample_size, dataset_size)
-            sample label y: (sample_size,)
+            sample dataset X: (dataset_size, sampled_feature_size)
+            sample label y: (dataset_size,)
 
-            minimize output
-            optimized if output is 1
+            minimize error
             """
-            _denom = X.sum(axis=1)
-            _denom[_denom == 0] = 1e-9  # prevents zero division
-            self.aic = (y / _denom).mean()  # mean reduce the vector into scalar
+            self.aic = feature_size - X.shape[-1]
             return self
 
     mod = MyMod()
 
-    ga = GA(X, y, mod, max_iter=300, pop_size=1000, mutate_prob=0.2)
+    ga = GA(X, y, mod, max_iter=300, pop_size=112, mutate_prob=0.2)
 
     best_solution, best_fitness = ga.select()  # use default setting
 
     assert (
-        best_fitness == 1.0
+        best_fitness == 0.0
     ), f"GA did not converge on simple example... may be an algorithmic problem\nfinal_output: {best_solution}"
