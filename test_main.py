@@ -116,3 +116,48 @@ def test_ga_feature_selection():
         > best_solution[num_features // 2 :].sum()
     )
     assert did_ga_favor_first_half, "GA did not favor the first half of the features"
+
+
+def test_simple_ga_problem():
+    """
+    goal: maximize sum of chromosome
+    e.g.
+    [0, 0, 0, 0, 1] => fitness_score: (1 / (1+1e-9)).mean()
+    [1, 1, 1, 1, 1] => fitness_score: (5 / (5+1e-9)).mean()
+    """
+
+    X = np.random.randint(0, 2, size=(120, 20))
+    y = X.sum(axis=1)
+
+    class MyMod:
+        def fit(self):
+            return self
+
+        def __call__(self, y, X):
+            """
+            e.g.
+            given
+            sample dataset X: (sample_size, dataset_size)
+            sample label y: (sample_size,)
+
+            minimize output
+            optimized if output is 1
+            """
+            _denom = X.sum(axis=1)
+            _denom[_denom == 0] = 1e-9  # prevents zero division
+            self.aic = (y / _denom).mean()  # mean reduce the vector into scalar
+            return self
+
+    mod = MyMod()
+
+    ga = GA(X, y, mod, max_iter=200, pop_size=1000, mutate_prob=0.1)
+
+    best_solution, best_fitness = ga.select()  # use default setting
+
+    assert (
+        best_fitness == 1.0
+    ), f"GA did not converge on simple example... may be an algorithmic problem\nfinal_output: {best_solution}"
+
+
+if __name__ == "__main__":
+    test_simple_ga_problem()
