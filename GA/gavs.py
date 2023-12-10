@@ -114,6 +114,8 @@ class GA(
         starting_pop: ndarray = self.initialize_pop()
         current_pop: ndarray = starting_pop.copy()
 
+        BEST_INDIVIDUAL = [None, float("inf")]
+
         for i in range(self.max_iter):
             """Calculates fitness and pairs parents"""
             # chrom_ranked: ordered bool matrix(current_pop) from the fittest to unfittest
@@ -121,6 +123,9 @@ class GA(
             parents = self.select_from_fitness_rank(chrom_ranked)
             current_pop = parents  # update current_pop's chromosoe
             print(f"[iteration {i+1}] score: {fitness_val[0]:3.4f} | {chrom_ranked[0]}")
+            if fitness_val[0] < BEST_INDIVIDUAL[1]:
+                BEST_INDIVIDUAL[1] = fitness_val[0]
+                BEST_INDIVIDUAL[0] = chrom_ranked[0]
 
             """Runs genetic operator sequence"""
             for method in operator_list:
@@ -130,12 +135,14 @@ class GA(
             # Check if any chromosome of zeros and replace the row
             current_pop = self.replace_zero_chromosome(current_pop)
 
-        final_pop = current_pop.copy()
-        self.final_pop_sorted, self.final_fitness_val = self.calc_fit_sort_population(
-            final_pop
-        )
+        # final_pop = current_pop.copy()
+        # self.final_pop_sorted, self.final_fitness_val = self.calc_fit_sort_population(
+        #     final_pop
+        # )
+        # return (self.final_pop_sorted[0], self.final_fitness_val[0])
+        # NOTE: select now returns the best solution instead of the finsal solution
 
-        return (self.final_pop_sorted[0], self.final_fitness_val[0])
+        return BEST_INDIVIDUAL
 
     def replace_zero_chromosome(self, population: ndarray):
         """
