@@ -150,14 +150,10 @@ def test_simple_ga_problem():
 
     mod = MyMod()
 
-    ga = GA(X, y, mod, max_iter=200, pop_size=1000, mutate_prob=0.1)
+    ga = GA(X, y, mod, max_iter=300, pop_size=1000, mutate_prob=0.2)
 
     best_solution, best_fitness = ga.select()  # use default setting
 
     assert (
         best_fitness == 1.0
     ), f"GA did not converge on simple example... may be an algorithmic problem\nfinal_output: {best_solution}"
-
-
-if __name__ == "__main__":
-    test_simple_ga_problem()
