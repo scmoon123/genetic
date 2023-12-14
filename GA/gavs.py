@@ -53,6 +53,10 @@ class GA(
         else:
             self.pop_size: int = pop_size
 
+        # Only allow even number for population size
+        if self.pop_size % 2 == 1:
+            self.pop_size = self.pop_size + 1
+
         self.X: ndarray = X
         self.y: ndarray = y
         self.mod: Callable = mod
@@ -79,10 +83,6 @@ class GA(
             # Specify a starting pop
 
             rows: int = self.pop_size
-            if rows % 2 == 1:  # If pop_size is odd
-                # Only allow even number for population size
-                self.pop_size = self.pop_size + 1
-
             cols: int = self.C
 
             # Complete random generation
