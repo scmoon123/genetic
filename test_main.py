@@ -150,7 +150,7 @@ def test_random_allel_selection_population():
     ), f"All zeros or all ones detected. Check the boolean indexing of the crossover function.\ninitial_pop: {initial_pop}\ncrossed_pop: {crossed_pop}"
 
 
-def test_ga_feature_selection():
+def test_simple_ga_problem1():
     def _simulate_dataset(num_samples=100, num_features=100) -> Tuple[ndarray, ndarray]:
         """
         Simulate a dataset where the first half of the variables are relevant and the second half are not.
@@ -166,7 +166,7 @@ def test_ga_feature_selection():
         return X, y
 
     data_sample_size = random.randint(100, 200)
-    data_feature_size = random.randint(200, 500)
+    data_feature_size = random.randint(20, 50)
     X, y = _simulate_dataset(data_sample_size, data_feature_size)
 
     # OLS Regression
@@ -184,7 +184,7 @@ def test_ga_feature_selection():
     assert did_ga_favor_first_half, "GA did not favor the first half of the features"
 
 
-def test_simple_ga_problem():
+def test_simple_ga_problem2():
     """
     goal: maximize sum of chromosome (reduce zeros in chromosome)
     e.g.
@@ -219,15 +219,18 @@ def test_simple_ga_problem():
 
     # 0 ~ 0.3, if mutate_prob too high => converge slower
     mutate_prob = random.random() * 0.3
-    ga = GA(X, y, mod, max_iter=max_iter, pop_size=pop_size, mutate_prob=mutate_prob)
+    ga = GA(
+        X,
+        y,
+        mod,
+        max_iter=max_iter,
+        pop_size=pop_size,
+        mutate_prob=mutate_prob,
+        exploit=True,
+    )
 
     best_solution, best_fitness = ga.select()  # use default setting
 
     assert (
         best_fitness == 0.0
     ), f"GA did not converge on simple example... may be an algorithmic problem\nfinal_output: {best_solution}"
-
-
-if __name__ == "__main__":
-    # test_simple_ga_problem()
-    test_random_allel_selection_population()

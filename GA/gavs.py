@@ -28,6 +28,8 @@ class GA(
         mutate_prob: float = 0.01,
         save_sols: bool = False,
         random_seed: int = None,  # type: ignore
+        exploit: bool = False,
+        verbose: bool = True,
     ):
         """
         parameters:
@@ -40,7 +42,11 @@ class GA(
             mutate_prob: GA mutation probability
             save_sols: ... TODO
             random_seed: random seed value
+            exploit: keep the best individual throughout the generation
+            verbose: if set to True print chromosomes and its fitness
         """
+        self.verbose = verbose
+        self.exploit = exploit
         self.random_seed: int = random_seed
         if random_seed:
             np.random.seed(self.random_seed)
@@ -122,7 +128,11 @@ class GA(
             chrom_ranked, fitness_val = self.calc_fit_sort_population(current_pop)
             parents = self.select_from_fitness_rank(chrom_ranked)
             current_pop = parents  # update current_pop's chromosoe
-            print(f"[iteration {i+1}] score: {fitness_val[0]:3.4f} | {chrom_ranked[0]}")
+
+            if self.verbose is True:
+                print(
+                    f"[iteration {i+1}] score: {fitness_val[0]:3.4f} | {chrom_ranked[0]}"
+                )
 
             # if fitness_val[0] < BEST_INDIVIDUAL[1]:
             #     BEST_INDIVIDUAL[1] = fitness_val[0]
@@ -133,6 +143,10 @@ class GA(
                 new_population = method(current_pop)
                 current_pop = new_population
 
+            # keep the best individual throughout the generation
+            if self.exploit is True:
+                current_pop[0] = chrom_ranked[0]
+
             # Check if any chromosome of zeros and replace the row
             current_pop = self.replace_zero_chromosome(current_pop)
 
@@ -142,6 +156,11 @@ class GA(
         self.final_pop_sorted, self.final_fitness_val = self.calc_fit_sort_population(
             final_pop
         )
+
+        if self.verbose is True:
+            print(
+                f"[FINAL] score: {self.final_fitness_val[0]:3.4f} | {self.final_pop_sorted[0]}"
+            )
         return (self.final_pop_sorted[0], self.final_fitness_val[0])
 
     def replace_zero_chromosome(self, population: ndarray):
