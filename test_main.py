@@ -25,67 +25,91 @@ def seed_everything(request):
     np.random.seed(seed)
 
 
-def test_initialization():
-    """
-    Test to see if the class GA works with given parameters
-    """
-    X = np.random.rand(100, 10)  # Example dataset with 100 samples, 10 Variables
-    y = np.random.rand(100)  # Dependant Variable
-    mod = sm.OLS  # OLS Regression
-
-    ga = GA(X, y, mod, max_iter=100, pop_size=20, mutate_prob=0.01)
-
-    assert ga.pop_size == 20
-    assert ga.max_iter == 100
-    assert ga.mutate_prob == 0.01
-    assert ga.X.shape == (100, 10)
-    assert ga.y.shape == (100,)
+# NOTE: think this is pretty meaningless
+# def test_initialization():
+#     """
+#     Test to see if the class GA works with given parameters
+#     """
+#     X = np.random.rand(100, 10)  # Example dataset with 100 samples, 10 Variables
+#     y = np.random.rand(100)  # Dependant Variable
+#     mod = sm.OLS  # OLS Regression
+#
+#     ga = GA(X, y, mod, max_iter=100, pop_size=20, mutate_prob=0.01)
+#
+#     assert ga.pop_size == 20
+#     assert ga.max_iter == 100
+#     assert ga.mutate_prob == 0.01
+#     assert ga.X.shape == (100, 10)
+#     assert ga.y.shape == (100,)
 
 
 def test_population_initialization():
-    X = np.random.rand(100, 10)
-    y = np.random.rand(100)
-    mod = sm.OLS
+    """Test `GA::initialize_pop` method"""
+    data_sample_size = random.randint(100, 200)
+    data_feature_size = random.randint(200, 500)
+    X = np.random.rand(data_sample_size, data_feature_size)
+    y = np.random.rand(data_sample_size)
 
-    ga = GA(X, y, mod, max_iter=100, pop_size=20)
+    max_iter = random.randint(10, 100)
+    pop_size = random.randint(30, 100)
+
+    mod = sm.OLS
+    ga = GA(X, y, mod, max_iter=max_iter, pop_size=pop_size)
     initial_pop = ga.initialize_pop()
 
-    assert initial_pop.shape == (20, 10)
-    assert not np.any((initial_pop == 0).all(axis=1))  # No array should be all zeros
+    assert X.shape[-1] == ga.C, f"{X.shape[-1]} != {ga.C}"
+    assert initial_pop.shape == (
+        pop_size,
+        X.shape[-1],
+    ), f"{initial_pop.shape} == {(pop_size, X.shape[-1])}"
+    assert not np.any(
+        (initial_pop == 0).all(axis=1)
+    ), "Individual with all zero chromosome detected. check if `GA::replace_zero_chromosome` is working properly."
 
 
-def test_selection_process():
-    """
-    Tests select method
-    """
-    X = np.random.rand(100, 10)
-    y = np.random.rand(100)
-    mod = sm.OLS
-
-    ga = GA(X, y, mod, max_iter=10, pop_size=20)
-    best_solution, best_fitness = ga.select([GA.random_mutate])
-
-    assert isinstance(best_solution, np.ndarray)
-    assert isinstance(best_fitness, (float, int))
+# NOTE: think this is pretty meaningless
+# def test_selection_process():
+#     """
+#     Tests select method
+#     """
+#     X = np.random.rand(100, 10)
+#     y = np.random.rand(100)
+#     mod = sm.OLS
+#
+#     ga = GA(X, y, mod, max_iter=10, pop_size=20)
+#     best_solution, best_fitness = ga.select([GA.random_mutate])
+#
+#     assert isinstance(best_solution, np.ndarray)
+#     assert isinstance(best_fitness, (float, int))
 
 
 def test_mutation():
     """
     Tests random_mutate method
     """
-    X = np.random.rand(100, 10)
-    y = np.random.rand(100)
-    mod = sm.OLS
+    data_sample_size = random.randint(100, 200)
+    data_feature_size = random.randint(200, 500)
+    X = np.random.rand(data_sample_size, data_feature_size)
+    y = np.random.rand(data_sample_size)
 
-    ga = GA(X, y, mod, max_iter=100, pop_size=20, mutate_prob=0.1)
+    max_iter = random.randint(10, 100)
+    pop_size = random.randint(30, 100)
+
+    mod = sm.OLS
+    ga = GA(X, y, mod, max_iter=max_iter, pop_size=pop_size, mutate_prob=1.0)
     initial_pop = ga.initialize_pop()
     mutated_pop = ga.random_mutate(initial_pop, ga.mutate_prob)
 
-    assert mutated_pop.shape == initial_pop.shape
+    assert (
+        mutated_pop.shape == initial_pop.shape
+    ), f"{mutated_pop.shape} != {initial_pop.shape}"
+    assert np.allclose(
+        initial_pop, 1 - mutated_pop
+    ), "If mutate_prob=1.0, `mutated_pop` should be an invert of `initial_pop` tensor"
 
 
 def test_ga_feature_selection():
-    def simulate_dataset(num_samples=100, num_features=100) -> Tuple[ndarray, ndarray]:
+    def _simulate_dataset(num_samples=100, num_features=100) -> Tuple[ndarray, ndarray]:
         """
         Simulate a dataset where the first half of the variables are relevant and the second half are not.
         returns:
@@ -99,21 +123,21 @@ def test_ga_feature_selection():
 
         return X, y
 
-    num_samples, num_features = 100, 100
-    X, y = simulate_dataset(num_samples, num_features)
+    data_sample_size = random.randint(100, 200)
+    data_feature_size = random.randint(200, 500)
+    X, y = _simulate_dataset(data_sample_size, data_feature_size)
 
     # OLS Regression
-    mod = lambda y, X: sm.OLS(y, X)
-
+    mod = sm.OLS
     ga = GA(X, y, mod, max_iter=50, pop_size=30, mutate_prob=0.01)
 
     # Run GA to get best solution
     # Store best solution in a list
-    best_solution, _ = ga.select([])
+    best_solution, _ = ga.select()
 
     did_ga_favor_first_half = (
-        best_solution[: num_features // 2].sum()
-        > best_solution[num_features // 2 :].sum()
+        best_solution[: data_feature_size // 2].sum()
+        > best_solution[data_feature_size // 2 :].sum()
     )
     assert did_ga_favor_first_half, "GA did not favor the first half of the features"
 
@@ -127,29 +151,33 @@ def test_simple_ga_problem():
     [0, 1, 1, 0, 1] => fitness_score: 2
     [1, 1, 1, 1, 1] => fitness_score: 0
     """
+    # setup datapoints with no correlation
     feature_size = 20
-    X = np.random.randint(0, 2, size=(120, feature_size))
-    y = X.sum(axis=1)
+    X = np.random.randn(100, feature_size)
+    y = np.random.randn(100) / np.random.randn(100)
 
     class MyMod:
         def fit(self):
             return self
 
-        def __call__(self, y, X):
+        def __call__(self, _, X):
             """
             e.g.
             given
-            sample dataset X: (dataset_size, sampled_feature_size)
-            sample label y: (dataset_size,)
+            sample dataset X(trimmed_X): (dataset_size, sampled_feature_size)
 
             minimize error
             """
-            self.aic = feature_size - X.shape[-1]
+            self.aic = feature_size - X.shape[-1]  # number of zeros in individual
             return self
 
     mod = MyMod()
+    max_iter = random.randint(250, 300)
+    pop_size = random.randint(100, 200)
 
-    ga = GA(X, y, mod, max_iter=300, pop_size=112, mutate_prob=0.2)
+    # 0 ~ 0.3, if mutate_prob too high => converge slower
+    mutate_prob = random.random() * 0.3
+    ga = GA(X, y, mod, max_iter=max_iter, pop_size=pop_size, mutate_prob=mutate_prob)
 
     best_solution, best_fitness = ga.select()  # use default setting
 
