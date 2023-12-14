@@ -9,7 +9,7 @@ from typing import Tuple
 import numpy as np
 import pytest
 import statsmodels.api as sm
-from numpy import ndarray
+from numpy import cross, ndarray
 
 from GA import GA
 
@@ -83,7 +83,7 @@ def test_population_initialization():
 #     assert isinstance(best_fitness, (float, int))
 
 
-def test_mutation():
+def test_random_mutate():
     """
     Tests random_mutate method
     """
@@ -106,6 +106,48 @@ def test_mutation():
     assert np.allclose(
         initial_pop, 1 - mutated_pop
     ), "If mutate_prob=1.0, `mutated_pop` should be an invert of `initial_pop` tensor"
+
+
+def test_split_and_glue_population():
+    """
+    Tests split_and_glue_population method
+    """
+    feature_size = random.randint(20, 40)
+    initial_pop = np.stack([np.ones(feature_size), np.zeros(feature_size)])
+    crossed_pop = GA.split_and_glue_population(initial_pop)
+
+    is_sorted = lambda a: np.all(a[:-1] <= a[1:])
+    sorted_tensor = np.cumsum(crossed_pop, axis=1) / np.arange(
+        1, crossed_pop.shape[-1] + 1
+    )
+    if sorted_tensor[0][0] == 0:
+        assert is_sorted(
+            sorted_tensor[0]
+        ), f"There is more than one crossover point\ninitial_pop: {initial_pop}\ncrossed_pop: {crossed_pop}"
+        assert is_sorted(
+            sorted_tensor[1][::-1]
+        ), f"There is more than one crossover point\ninitial_pop: {initial_pop}\ncrossed_pop: {crossed_pop}"
+    else:
+        assert is_sorted(
+            sorted_tensor[1]
+        ), f"There is more than one crossover point\ninitial_pop: {initial_pop}\ncrossed_pop: {crossed_pop}"
+        assert is_sorted(
+            sorted_tensor[0][::-1]
+        ), f"There is more than one crossover point\ninitial_pop: {initial_pop}\ncrossed_pop: {crossed_pop}"
+
+
+def test_random_allel_selection_population():
+    """
+    Tests random_allel_selection_population method
+    """
+    feature_size = random.randint(40, 80)
+    initial_pop = np.stack([np.ones(feature_size), np.zeros(feature_size)])
+    crossed_pop = GA.random_allel_selection_population(initial_pop)
+
+    mean_tensor = crossed_pop.mean(axis=-1)
+    assert np.all(
+        (0.0 < mean_tensor) & (mean_tensor < 1.0)
+    ), f"All zeros or all ones detected. Check the boolean indexing of the crossover function.\ninitial_pop: {initial_pop}\ncrossed_pop: {crossed_pop}"
 
 
 def test_ga_feature_selection():
@@ -184,3 +226,8 @@ def test_simple_ga_problem():
     assert (
         best_fitness == 0.0
     ), f"GA did not converge on simple example... may be an algorithmic problem\nfinal_output: {best_solution}"
+
+
+if __name__ == "__main__":
+    # test_simple_ga_problem()
+    test_random_allel_selection_population()
