@@ -9,7 +9,7 @@ from typing import Tuple
 import numpy as np
 import pytest
 import statsmodels.api as sm
-from numpy import cross, ndarray
+from numpy import ndarray
 
 from GA import GA
 

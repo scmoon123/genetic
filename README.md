@@ -3,8 +3,8 @@ STAT 243 Final: genetic algorithm for variable selection
 
 ## Run example.py
 ```
-# with default setting
-python3 example.py
+# this will test GA algoithm on Abalone dataset with GLM, OLS
+sh examples.sh
 ```
 type `python3 example.py --help` to see available flag options
 
