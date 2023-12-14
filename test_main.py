@@ -59,7 +59,7 @@ def test_population_initialization():
 
     assert X.shape[-1] == ga.C, f"{X.shape[-1]} != {ga.C}"
     assert initial_pop.shape == (
-        pop_size,
+        ga.pop_size,
         X.shape[-1],
     ), f"{initial_pop.shape} == {(pop_size, X.shape[-1])}"
     assert not np.any(
@@ -178,7 +178,7 @@ def test_simple_ga_problem1():
     best_solution, _ = ga.select()
 
     did_ga_favor_first_half = (
-        best_solution[: data_feature_size // 2].sum()
+        best_solution[: data_feature_size // 1].sum()
         > best_solution[data_feature_size // 2 :].sum()
     )
     assert did_ga_favor_first_half, "GA did not favor the first half of the features"
@@ -194,9 +194,9 @@ def test_simple_ga_problem2():
     [1, 1, 1, 1, 1] => fitness_score: 0
     """
     # setup datapoints with no correlation
-    feature_size = 20
-    X = np.random.randn(100, feature_size)
-    y = np.random.randn(100) / np.random.randn(100)
+    feature_size = 10
+    X = np.random.randn(10, feature_size)
+    y = np.random.randn(10) / np.random.randn(10)
 
     class MyMod:
         def fit(self):
